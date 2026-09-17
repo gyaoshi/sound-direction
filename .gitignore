@@ -8,5 +8,6 @@ captures/
 .externalNativeBuild/
 .cxx/
 .tmp/
+dist/
 *.apk
 *.keystore
