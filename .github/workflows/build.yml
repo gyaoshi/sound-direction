@@ -22,12 +22,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install platform and build tools
+      # ubuntu runner 自带 Android SDK，这里只做探测 + 尽力补齐，失败不阻断
+      - name: Check Android SDK
         run: |
-          sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "--- platforms ---"; ls "$ANDROID_HOME/platforms" 2>/dev/null || true
+          echo "--- build-tools ---"; ls "$ANDROID_HOME/build-tools" 2>/dev/null || true
+          SDKMANAGER=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -n1 || true)
+          if [ -n "$SDKMANAGER" ]; then
+            echo "sdkmanager: $SDKMANAGER"
+            yes | "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+          else
+            echo "no sdkmanager found, rely on auto-download by AGP"
+          fi
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

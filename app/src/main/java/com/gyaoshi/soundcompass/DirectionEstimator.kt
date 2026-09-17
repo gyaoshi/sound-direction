@@ -247,8 +247,9 @@ class DirectionEstimator(private val fftSize: Int = 2048) {
         val stdU = sqrt(varU).coerceIn(0f, 1f)
         val spreadDeg = Math.toDegrees(asin(stdU.toDouble())).toFloat()
 
-        val azimuthDeg = Math.toDegrees(asin(uSmooth.toDouble())).toFloat()
-        val delayUs = uSmooth * maxLagReal / sampleRate * 1e6f
+        val uClamped = uSmooth.coerceIn(-1f, 1f)
+        val azimuthDeg = Math.toDegrees(asin(uClamped.toDouble())).toFloat()
+        val delayUs = uClamped * maxLagReal / sampleRate * 1e6f
 
         // ---------- 8. 可靠度 ----------
         val confNorm = smoothstep(z, 3f, 12f)
